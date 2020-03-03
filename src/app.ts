@@ -5,7 +5,7 @@ interface IAction {
     label: string;
     accent: boolean;
     enabled: boolean;
-    effect: Effect;
+    effects: Effect[];
 }
 
 type Action = string;
@@ -21,21 +21,22 @@ interface IDisable {
     actions: Action[];
 }
 
-interface IReplace {
-    kind: 'replace';
+interface IAdd {
+    kind: 'add';
     actions: IAction[];
 }
 
-interface INone {
-    kind: 'none';
+interface IRemove {
+    kind: 'remove';
+    actions: IAction[];
 }
 
-type Effect = ITransition | IDisable | IReplace | INone;
+type Effect = ITransition | IDisable | IAdd | IRemove;
 
 interface IStage {
     name: Stage;
     label: string;
-    timers: [number, Effect][];
+    timers: [number, Effect[]][];
     actions: IAction[];
 }
 
@@ -115,7 +116,7 @@ export default class App {
                     const schema: ISchema = JSON.parse(data);
                     for (const stage of schema.stages) {
                         if (stage.name === schema.initial) {
-                            const ui = new StageUI(stage, (action) => { });
+                            const ui = new StageUI(stage, (action) => { this.handle_action(action); });
                         }
                     }
                 }
@@ -146,8 +147,12 @@ export default class App {
         const schema: ISchema = JSON.parse(data);
         for (const stage of schema.stages) {
             if (stage.name === schema.initial) {
-                const ui = new StageUI(stage, (action) => { });
+                const ui = new StageUI(stage, (action) => { this.handle_action(action); });
             }
         }
+    }
+
+    private handle_action(action: IAction) {
+        console.log(action);
     }
 }

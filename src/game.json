@@ -8,45 +8,35 @@
                     "label": "High Goal",
                     "enabled": true,
                     "accent": false,
-                    "effect": {
-                        "kind": "none"
-                    }
+                    "effects": []
                 },
                 {
                     "name": "low_goal",
                     "label": "Low Goal",
                     "enabled": true,
                     "accent": false,
-                    "effect": {
-                        "kind": "none"
-                    }
+                    "effects": []
                 },
                 {
                     "name": "missed_goal",
                     "label": "Missed Goal",
                     "enabled": true,
                     "accent": false,
-                    "effect": {
-                        "kind": "none"
-                    }
+                    "effects": []
                 },
                 {
                     "name": "crossed_baseline",
                     "label": "Crossed Baseline",
                     "enabled": true,
                     "accent": false,
-                    "effect": {
-                        "kind": "none"
-                    }
+                    "effects": []
                 },
                 {
                     "name": "begin_teleop",
                     "label": "Begin Teleoperation",
                     "enabled": true,
                     "accent": true,
-                    "effect": {
-                        "kind": "none"
-                    }
+                    "effects": []
                 }
             ],
             "label": "Autonomous",
@@ -54,9 +44,7 @@
             "timers": [
                 [
                     15000,
-                    {
-                        "kind": "none"
-                    }
+                    []
                 ]
             ]
         }
