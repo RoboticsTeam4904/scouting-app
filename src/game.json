@@ -1,0 +1,64 @@
+{
+    "initial": "autonomous",
+    "stages": [
+        {
+            "actions": [
+                {
+                    "name": "high_goal",
+                    "label": "High Goal",
+                    "enabled": true,
+                    "accent": false,
+                    "effect": {
+                        "kind": "none"
+                    }
+                },
+                {
+                    "name": "low_goal",
+                    "label": "Low Goal",
+                    "enabled": true,
+                    "accent": false,
+                    "effect": {
+                        "kind": "none"
+                    }
+                },
+                {
+                    "name": "missed_goal",
+                    "label": "Missed Goal",
+                    "enabled": true,
+                    "accent": false,
+                    "effect": {
+                        "kind": "none"
+                    }
+                },
+                {
+                    "name": "crossed_baseline",
+                    "label": "Crossed Baseline",
+                    "enabled": true,
+                    "accent": false,
+                    "effect": {
+                        "kind": "none"
+                    }
+                },
+                {
+                    "name": "begin_teleop",
+                    "label": "Begin Teleoperation",
+                    "enabled": true,
+                    "accent": true,
+                    "effect": {
+                        "kind": "none"
+                    }
+                }
+            ],
+            "label": "Autonomous",
+            "name": "autonomous",
+            "timers": [
+                [
+                    15000,
+                    {
+                        "kind": "none"
+                    }
+                ]
+            ]
+        }
+    ]
+}

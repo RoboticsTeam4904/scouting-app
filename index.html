@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>limn</title>
+</head>
+
+<style>
+    html {
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        background: var(--bg);
+        user-select: none;
+
+        /* styling */
+        --bg: #4285F4;
+        --fg: #fff;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-size: 14px;
+        color: var(--fg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .centered {
+        justify-content: center;
+        align-items: center;
+    }
+
+    .splash {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background: var(--bg);
+        left: 0;
+        z-index: 2;
+        top: 0;
+    }
+
+    .splash.loaded {
+        transition: opacity 0.5s ease-in;
+        opacity: 0;
+    }
+
+    .spinner {
+        color: var(--fg);
+        animation: 0.5s ease-in fade-in;
+    }
+
+    .splash.loaded .spinner {
+        animation: none;
+    }
+
+    .spinner svg {
+        animation: 2s linear infinite svg-animation;
+        width: 100px;
+    }
+
+    .container {
+        max-width: 620px;
+        width: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @keyframes fade-out {
+        0% {
+            display: initial;
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 1;
+        }
+
+        99% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 0;
+            display: none;
+        }
+    }
+
+    @keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes svg-animation {
+        0% {
+            transform: rotateZ(0deg);
+        }
+
+        100% {
+            transform: rotateZ(360deg)
+        }
+    }
+
+    .spinner circle {
+        animation: 1.4s ease-in-out infinite both circle-animation;
+        display: block;
+        fill: transparent;
+        stroke: var(--fg);
+        stroke-linecap: round;
+        stroke-dasharray: 283;
+        stroke-dashoffset: 280;
+        stroke-width: 10px;
+        transform-origin: 50% 50%;
+    }
+
+    @keyframes circle-animation {
+
+        0%,
+        25% {
+            stroke-dashoffset: 280;
+            transform: rotate(0);
+        }
+
+        50%,
+        75% {
+            stroke-dashoffset: 75;
+            transform: rotate(45deg);
+        }
+
+        100% {
+            stroke-dashoffset: 280;
+            transform: rotate(360deg);
+        }
+    }
+
+    .stage {
+        margin: auto;
+        width: 100%;
+        max-width: 650px;
+        padding: 20px;
+        padding-top: 50px;
+    }
+
+    .title {
+        font-weight: bold;
+        font-size: 2em;
+        margin-left: 10px;
+        margin-bottom: 2px;
+        margin-top: 10px;
+    }
+
+    .actions {
+        display: flex;
+        flex-flow: row wrap;
+        flex-grow: 1;
+        padding: 5px;
+    }
+
+    .action {
+        flex-grow: 1;
+        background: var(--fg);
+        color: var(--bg);
+        display: flex;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 15px;
+        margin: 5px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .action:hover {
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    }
+
+    .action:active {
+        opacity: 0.8;
+    }
+
+    .action:not(.accent):active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .tc {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .timer {
+        border-radius: 15px;
+        justify-content: center;
+        padding-left: 15px;
+        font-variant-numeric: tabular-nums;
+        padding-right: 15px;
+        display: flex;
+        align-items: center;
+        height: 30px;
+        margin-top: 10px;
+        background: var(--fg);
+        color: var(--bg);
+    }
+
+    .action:not(.accent) {
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--fg);
+    }
+</style>
+
+<body>
+    <div class="flex centered splash">
+        <div class="spinner">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" />
+            </svg>
+        </div>
+    </div>
+    <div class="tc">
+        <div class="timer">00:00</div>
+    </div>
+    <script src="bundle.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
