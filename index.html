@@ -239,13 +239,17 @@
     }
 
     .gamestart {
-        display: flex;
+        display: none;
         justify-content: center;
         align-content: center;
         flex-flow: row wrap;
         padding: 20px;
         margin: auto;
         height: 100vh;
+    }
+
+    .gamestart.active {
+        display: flex;
     }
 
     .robot {

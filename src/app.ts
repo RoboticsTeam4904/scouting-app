@@ -16,6 +16,7 @@ interface IEvent {
 }
 
 interface IGame {
+    start_time: number;
     events: IEvent[];
 }
 
@@ -148,6 +149,7 @@ export default class App {
     private tempHash: ArrayBuffer;
     private schema: ISchema;
     private ui: StageUI;
+    private game: IGame;
     private games: string[];
 
     constructor() {
@@ -198,10 +200,24 @@ export default class App {
         const data = localStorage.getItem('schema')!;
         const schema: ISchema = JSON.parse(data);
         this.schema = schema;
-        //this.begin_game();
+        const gs = document.querySelector('.gamestart')!;
+        gs.classList.add('active');
+        const splash = document.querySelector('.splash');
+        splash?.classList.add('loaded');
+        setTimeout(() => {
+            splash?.remove();
+        }, 1000);
+        document.querySelectorAll('.start').forEach((item) => {
+            item.addEventListener('click', () => { gs.classList.remove('active'); this.begin_game(); });
+        });
+        // this.begin_game();
     }
 
     private begin_game() {
+        this.game = {
+            events: [],
+            start_time: Date.now(),
+        };
         for (const stage of this.schema.stages) {
             if (stage.name === this.schema.initial) {
                 this.ui = new StageUI(stage,
