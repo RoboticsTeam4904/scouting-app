@@ -52,13 +52,17 @@ interface ISchema {
 class StageUI {
     private start: number;
     private time: Element;
+    private element: Element;
+    private intervals: ReturnType<typeof setInterval>[];
     private timerIdx: number;
 
     constructor(stage: IStage, cb: (a0: IAction) => void, tcb: (effects: Effect[]) => void) {
         this.time = document.querySelector('.timer')!;
         this.start = performance.now();
-        document.querySelector('.timer')?.classList.add('active');
+        this.time.classList.add('active');
+        this.intervals = [];
         const el = document.createElement('div');
+        this.element = el;
         el.classList.add('stage');
         el.innerHTML = `<div class="title">${stage.label}</div>`;
         const actions = document.createElement('div');
@@ -83,7 +87,7 @@ class StageUI {
         this.timerIdx = 0;
         const leastTimer = sortedTimers[this.timerIdx][0];
         if (leastTimer < 60000) {
-            setInterval(() => {
+            this.intervals.push(setInterval(() => {
                 const time = performance.now() - this.start;
                 const millis = Math.round((time % 1000) / 10).toString().padStart(2, '0');
                 const secs = Math.floor(time / 1000).toString().padStart(2, '0');
@@ -91,9 +95,9 @@ class StageUI {
                 if (sortedTimers[this.timerIdx] && time >= sortedTimers[this.timerIdx][0]) {
                     tcb(sortedTimers[this.timerIdx][1]); this.timerIdx += 1;
                 }
-            }, 10);
+            }, 10));
         } else {
-            setInterval(() => {
+            this.intervals.push(setInterval(() => {
                 const time = Math.floor((performance.now() - this.start) / 1000);
                 const secs = Math.round(time % 60).toString().padStart(2, '0');
                 const mins = Math.floor(time / 60).toString().padStart(2, '0');
@@ -101,7 +105,15 @@ class StageUI {
                 if (sortedTimers[this.timerIdx] && time >= sortedTimers[this.timerIdx][0]) {
                     tcb(sortedTimers[this.timerIdx][1]); this.timerIdx += 1;
                 }
-            }, 1000);
+            }, 1000));
+        }
+    }
+
+    public remove() {
+        this.element.remove();
+        this.time.classList.remove('active');
+        for (const interval of this.intervals) {
+            clearInterval(interval);
         }
     }
 }
@@ -117,6 +129,7 @@ export default class App {
     private initialized: AppState;
     private tempHash: ArrayBuffer;
     private schema: ISchema;
+    private ui: StageUI;
 
     constructor() {
         const server = new WebSocket(serverURI);
@@ -134,7 +147,7 @@ export default class App {
                     const schema: ISchema = JSON.parse(data);
                     for (const stage of schema.stages) {
                         if (stage.name === schema.initial) {
-                            const ui = new StageUI(stage, (action) => { this.handle_action(action); },
+                            this.ui = new StageUI(stage, (action) => { this.handle_action(action); },
                                 (timer) => {
                                     this.handle_timer(timer);
                                 });
@@ -168,7 +181,7 @@ export default class App {
         const schema: ISchema = JSON.parse(data);
         for (const stage of schema.stages) {
             if (stage.name === schema.initial) {
-                const ui = new StageUI(stage,
+                this.ui = new StageUI(stage,
                     (action) => { this.handle_action(action); },
                     (timer) => {
                         this.handle_timer(timer);
