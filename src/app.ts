@@ -28,9 +28,9 @@ interface ITransition {
     stage: Stage;
 }
 
-interface IDisable {
-    kind: 'disable';
-    actions: Action[];
+interface IToggle {
+    kind: 'toggle';
+    action: Action;
 }
 
 interface IAdd {
@@ -47,7 +47,7 @@ interface IEnd {
     kind: 'end';
 }
 
-type Effect = ITransition | IDisable | IAdd | IRemove | IEnd;
+type Effect = ITransition | IToggle | IAdd | IRemove | IEnd;
 
 interface IStage {
     name: Stage;
@@ -79,13 +79,25 @@ class StageUI {
         el.innerHTML = `<div class="title">${stage.label}</div>`;
         const actions = document.createElement('div');
         actions.classList.add('actions');
-        for (const action of stage.actions) {
+        for (let action of stage.actions) {
             const item = document.createElement('div');
             item.addEventListener('click', () => { cb(action); });
             item.classList.add('action');
             item.textContent = action.label;
             if (action.accent) {
                 item.classList.add('accent');
+            }
+            for (const effect of action.effects) {
+                if (effect.kind === 'toggle') {
+                    item.addEventListener('click', () => {
+                        action.accent = !action.accent;
+                        if (action.accent) {
+                            item.classList.add('accent');
+                        } else {
+                            item.classList.remove('accent');
+                        }
+                    });
+                }
             }
             actions.appendChild(item);
         }

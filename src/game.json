@@ -29,17 +29,22 @@
                     "label": "Crossed Baseline",
                     "enabled": true,
                     "accent": false,
-                    "effects": []
+                    "effects": [
+                        {
+                            "kind": "toggle",
+                            "action": "Crossed Baseline"
+                        }
+                    ]
                 },
                 {
                     "name": "begin_teleop",
-                    "label": "Begin Teleoperation",
+                    "label": "Begin TeleOp",
                     "enabled": true,
                     "accent": true,
                     "effects": [
                         {
                             "kind": "transition",
-                            "stage": "teleoperation"
+                            "stage": "teleop"
                         }
                     ]
                 }
@@ -52,15 +57,15 @@
                     [
                         {
                             "kind": "transition",
-                            "stage": "teleoperation"
+                            "stage": "teleop"
                         }
                     ]
                 ]
             ]
         },
         {
-            "label": "Teleoperation",
-            "name": "teleoperation",
+            "label": "TeleOp",
+            "name": "teleop",
             "timers": [],
             "actions": []
         }
