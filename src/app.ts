@@ -85,7 +85,13 @@ class StageUI {
             }
         });
         this.timerIdx = 0;
-        const leastTimer = sortedTimers[this.timerIdx][0];
+        let leastTimer;
+        if (sortedTimers.length === 0) {
+            leastTimer = Infinity;
+
+        } else {
+            leastTimer = sortedTimers[this.timerIdx][0];
+        }
         if (leastTimer < 60000) {
             this.intervals.push(setInterval(() => {
                 const time = performance.now() - this.start;
@@ -145,6 +151,7 @@ export default class App {
                     this.initialized = AppState.Failed;
                 } else {
                     const schema: ISchema = JSON.parse(data);
+                    this.schema = schema;
                     for (const stage of schema.stages) {
                         if (stage.name === schema.initial) {
                             this.ui = new StageUI(stage, (action) => { this.handle_action(action); },
@@ -179,8 +186,22 @@ export default class App {
     private read_schema() {
         const data = localStorage.getItem('schema')!;
         const schema: ISchema = JSON.parse(data);
+        this.schema = schema;
         for (const stage of schema.stages) {
             if (stage.name === schema.initial) {
+                this.ui = new StageUI(stage,
+                    (action) => { this.handle_action(action); },
+                    (timer) => {
+                        this.handle_timer(timer);
+                    });
+            }
+        }
+    }
+
+    private transition(schema: string) {
+        for (const stage of this.schema.stages) {
+            if (stage.name === schema) {
+                this.ui.remove();
                 this.ui = new StageUI(stage,
                     (action) => { this.handle_action(action); },
                     (timer) => {
@@ -195,6 +216,13 @@ export default class App {
     }
 
     private handle_timer(effects: Effect[]) {
+        for (const effect of effects) {
+            switch (effect.kind) {
+                case 'transition': {
+                    this.transition(effect.stage);
+                }
+            }
+        }
         console.log(effects);
     }
 }

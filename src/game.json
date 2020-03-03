@@ -44,9 +44,20 @@
             "timers": [
                 [
                     15000,
-                    []
+                    [
+                        {
+                            "kind": "transition",
+                            "stage": "teleoperation"
+                        }
+                    ]
                 ]
             ]
+        },
+        {
+            "label": "Teleoperation",
+            "name": "teleoperation",
+            "timers": [],
+            "actions": []
         }
     ]
 }
