@@ -57,6 +57,7 @@ class StageUI {
     constructor(stage: IStage, cb: (a0: IAction) => void, tcb: (effects: Effect[]) => void) {
         this.time = document.querySelector('.timer')!;
         this.start = performance.now();
+        document.querySelector('.timer')?.classList.add('active');
         const el = document.createElement('div');
         el.classList.add('stage');
         el.innerHTML = `<div class="title">${stage.label}</div>`;
