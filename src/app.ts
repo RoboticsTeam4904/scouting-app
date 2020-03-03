@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 const serverURI = 'ws://127.0.0.1:8000';
 
 interface IAction {
@@ -6,6 +8,15 @@ interface IAction {
     accent: boolean;
     enabled: boolean;
     effects: Effect[];
+}
+
+interface IEvent {
+    timestamp: number;
+    name: string;
+}
+
+interface IGame {
+    events: IEvent[];
 }
 
 type Action = string;
@@ -137,8 +148,16 @@ export default class App {
     private tempHash: ArrayBuffer;
     private schema: ISchema;
     private ui: StageUI;
+    private games: string[];
 
     constructor() {
+        const games = localStorage.getItem('games');
+        if (games) {
+            this.games = JSON.parse(games);
+        } else {
+            localStorage.setItem('games', JSON.stringify([]));
+            this.games = [];
+        }
         const server = new WebSocket(serverURI);
         server.binaryType = 'arraybuffer';
         this.initialized = AppState.Uninitialized;
@@ -151,16 +170,7 @@ export default class App {
                     el.outerHTML = `<div style="display: flex; padding: 30px; width: 100vw; height: 100vh; justify-content: center; align-items: center; font-size: 3em; font-weight: bold; flex-flow: column; line-height: 1;"><div>Connection failed<div style="font-size: 0.5em; font-weight: normal; opacity: 0.7; margin-top: 10px;">No schema available</div></div></div>`;
                     this.initialized = AppState.Failed;
                 } else {
-                    const schema: ISchema = JSON.parse(data);
-                    this.schema = schema;
-                    for (const stage of schema.stages) {
-                        if (stage.name === schema.initial) {
-                            this.ui = new StageUI(stage, (action) => { this.handle_action(action); },
-                                (timer) => {
-                                    this.handle_timer(timer);
-                                });
-                        }
-                    }
+                    this.read_schema();
                 }
             }
         };
@@ -188,8 +198,12 @@ export default class App {
         const data = localStorage.getItem('schema')!;
         const schema: ISchema = JSON.parse(data);
         this.schema = schema;
-        for (const stage of schema.stages) {
-            if (stage.name === schema.initial) {
+        //this.begin_game();
+    }
+
+    private begin_game() {
+        for (const stage of this.schema.stages) {
+            if (stage.name === this.schema.initial) {
                 this.ui = new StageUI(stage,
                     (action) => { this.handle_action(action); },
                     (timer) => {

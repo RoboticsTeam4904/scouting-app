@@ -220,7 +220,7 @@
         padding-left: 15px;
         font-variant-numeric: tabular-nums;
         padding-right: 15px;
-        display: flex;
+        display: none;
         align-items: center;
         height: 30px;
         margin-top: 10px;
@@ -237,6 +237,74 @@
         color: var(--fg);
         border: 1px solid var(--fg);
     }
+
+    .gamestart {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-flow: row wrap;
+        padding: 20px;
+        margin: auto;
+        height: 100vh;
+    }
+
+    .robot {
+        background: var(--fg);
+        color: var(--bg);
+        margin: 5px;
+        border-radius: 5px;
+    }
+
+    .start {
+        width: calc(100% - 20px);
+        background: var(--bg);
+        color: var(--fg);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+        margin-top: 5px;
+        padding: 10px;
+        transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+        text-align: center;
+    }
+
+    .start:hover {
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    }
+
+    .start:active {
+        opacity: 0.8;
+    }
+
+    .team {
+        margin: 10px;
+    }
+
+    input {
+        outline: none;
+        border: none;
+        font-size: 1.5em;
+        font-weight: bold;
+        width: 100px;
+        padding: 10px;
+        margin: 10px;
+        color: var(--fg);
+        background: var(--bg);
+        border-radius: 5px;
+        margin-top: 0px;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    ::placeholder {
+        color: var(--fg);
+        opacity: 0.5;
+    }
 </style>
 
 <body>
@@ -249,6 +317,32 @@
     </div>
     <div class="tc">
         <div class="timer">00:00</div>
+    </div>
+    <div class="gamestart">
+        <div class="robot">
+            <div class="team">Team 1</div><input placeholder="Team №" type="number" />
+            <div class="start">Start</div>
+        </div>
+        <div class="robot">
+            <div class="team">Team 2</div><input placeholder="Team №" type="number" />
+            <div class="start">Start</div>
+        </div>
+        <div class="robot">
+            <div class="team">Team 3</div><input placeholder="Team №" type="number" />
+            <div class="start">Start</div>
+        </div>
+        <div class="robot">
+            <div class="team">Team 4</div><input placeholder="Team №" type="number" />
+            <div class="start">Start</div>
+        </div>
+        <div class="robot">
+            <div class="team">Team 5</div><input placeholder="Team №" type="number" />
+            <div class="start">Start</div>
+        </div>
+        <div class="robot">
+            <div class="team">Team 6</div><input placeholder="Team №" type="number" />
+            <div class="start">Start</div>
+        </div>
     </div>
     <script src="bundle.js"></script>
     <script>
