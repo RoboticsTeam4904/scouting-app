@@ -48,8 +48,9 @@ interface ISchema {
 class StageUI {
     private start: number;
     private time: Element;
+    private timerIdx: number;
 
-    constructor(stage: IStage, cb: (a0: IAction) => void) {
+    constructor(stage: IStage, cb: (a0: IAction) => void, tcb: (effects: Effect[]) => void) {
         this.time = document.querySelector('.timer')!;
         this.start = performance.now();
         const el = document.createElement('div');
@@ -69,13 +70,22 @@ class StageUI {
         }
         el.appendChild(actions);
         document.body.appendChild(el);
-        const leastTimer = Math.min(...stage.timers.map((timer) => (timer[0])));
+        const sortedTimers = stage.timers.sort((timer1, timer2) => {
+            if (timer1[0] < timer2[0]) { return -1; } else if (timer1[0] > timer2[0]) { return 1; } else {
+                return 0;
+            }
+        });
+        this.timerIdx = 0;
+        const leastTimer = sortedTimers[this.timerIdx][0];
         if (leastTimer < 60000) {
             setInterval(() => {
                 const time = performance.now() - this.start;
                 const millis = Math.round((time % 1000) / 10).toString().padStart(2, '0');
                 const secs = Math.floor(time / 1000).toString().padStart(2, '0');
                 this.time.textContent = `${secs}:${millis}`;
+                if (sortedTimers[this.timerIdx] && time >= sortedTimers[this.timerIdx][0]) {
+                    tcb(sortedTimers[this.timerIdx][1]); this.timerIdx += 1;
+                }
             }, 10);
         } else {
             setInterval(() => {
@@ -83,6 +93,9 @@ class StageUI {
                 const secs = Math.round(time % 60).toString().padStart(2, '0');
                 const mins = Math.floor(time / 60).toString().padStart(2, '0');
                 this.time.textContent = `${mins}:${secs}`;
+                if (sortedTimers[this.timerIdx] && time >= sortedTimers[this.timerIdx][0]) {
+                    tcb(sortedTimers[this.timerIdx][1]); this.timerIdx += 1;
+                }
             }, 1000);
         }
     }
@@ -116,7 +129,10 @@ export default class App {
                     const schema: ISchema = JSON.parse(data);
                     for (const stage of schema.stages) {
                         if (stage.name === schema.initial) {
-                            const ui = new StageUI(stage, (action) => { this.handle_action(action); });
+                            const ui = new StageUI(stage, (action) => { this.handle_action(action); },
+                                (timer) => {
+                                    this.handle_timer(timer);
+                                });
                         }
                     }
                 }
@@ -147,12 +163,20 @@ export default class App {
         const schema: ISchema = JSON.parse(data);
         for (const stage of schema.stages) {
             if (stage.name === schema.initial) {
-                const ui = new StageUI(stage, (action) => { this.handle_action(action); });
+                const ui = new StageUI(stage,
+                    (action) => { this.handle_action(action); },
+                    (timer) => {
+                        this.handle_timer(timer);
+                    });
             }
         }
     }
 
     private handle_action(action: IAction) {
         console.log(action);
+    }
+
+    private handle_timer(effects: Effect[]) {
+        console.log(effects);
     }
 }
