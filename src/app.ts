@@ -87,19 +87,30 @@ class StageUI {
     }
 }
 
+enum AppState {
+    Uninitialized,
+    ReadingSchema,
+    Ready,
+    Failed,
+}
+
 export default class App {
-    private initialized: boolean;
+    private initialized: AppState;
+    private tempHash: ArrayBuffer;
     private schema: ISchema;
 
     constructor() {
         const server = new WebSocket(serverURI);
+        server.binaryType = 'arraybuffer';
+        this.initialized = AppState.Uninitialized;
         server.onerror = () => {
-            if (!this.initialized) {
+            if (this.initialized !== AppState.Ready) {
                 const data = localStorage.getItem('schema');
                 if (!data) {
                     const el = document.createElement('div');
                     document.body.appendChild(el);
                     el.outerHTML = `<div style="display: flex; padding: 30px; width: 100vw; height: 100vh; justify-content: center; align-items: center; font-size: 3em; font-weight: bold; flex-flow: column; line-height: 1;"><div>Connection failed<div style="font-size: 0.5em; font-weight: normal; opacity: 0.7; margin-top: 10px;">No schema available</div></div></div>`;
+                    this.initialized = AppState.Failed;
                 } else {
                     const schema: ISchema = JSON.parse(data);
                     for (const stage of schema.stages) {
@@ -110,19 +121,33 @@ export default class App {
                 }
             }
         };
-        server.onopen = () => {
-            if (!this.initialized) {
-                const schema = localStorage.getItem('schema');
-                if (!schema) {
-                    server.send('g');
-                }
-            }
-        };
         server.onmessage = (message) => {
-            if (!this.initialized) {
+            if (this.initialized === AppState.Uninitialized) {
+                if (message.data !== localStorage.getItem('schema_hash')) {
+                    this.initialized = AppState.ReadingSchema;
+                    this.tempHash = message.data;
+                    server.send('g');
+                } else {
+                    this.initialized = AppState.Ready;
+                    this.read_schema();
+                }
+            } else if (this.initialized === AppState.ReadingSchema) {
                 localStorage.setItem('schema', message.data);
-                this.schema = JSON.parse(message.data);
+                localStorage.setItem('schema_hash',
+                    btoa(String.fromCharCode.apply(null, new Uint8Array(this.tempHash))));
+                this.initialized = AppState.Ready;
+                this.read_schema();
             }
         };
+    }
+
+    private read_schema() {
+        const data = localStorage.getItem('schema')!;
+        const schema: ISchema = JSON.parse(data);
+        for (const stage of schema.stages) {
+            if (stage.name === schema.initial) {
+                const ui = new StageUI(stage, (action) => { });
+            }
+        }
     }
 }
