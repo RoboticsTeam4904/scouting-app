@@ -31,7 +31,11 @@ interface IRemove {
     actions: IAction[];
 }
 
-type Effect = ITransition | IDisable | IAdd | IRemove;
+interface IEnd {
+    kind: 'end';
+}
+
+type Effect = ITransition | IDisable | IAdd | IRemove | IEnd;
 
 interface IStage {
     name: Stage;
