@@ -117,6 +117,7 @@ class StageUI {
 
     public remove() {
         this.element.remove();
+        this.time.textContent = '00:00';
         this.time.classList.remove('active');
         for (const interval of this.intervals) {
             clearInterval(interval);
@@ -212,10 +213,10 @@ export default class App {
     }
 
     private handle_action(action: IAction) {
-        console.log(action);
+        this.process_effects(action.effects);
     }
 
-    private handle_timer(effects: Effect[]) {
+    private process_effects(effects: Effect[]) {
         for (const effect of effects) {
             switch (effect.kind) {
                 case 'transition': {
@@ -223,6 +224,9 @@ export default class App {
                 }
             }
         }
-        console.log(effects);
+    }
+
+    private handle_timer(effects: Effect[]) {
+        this.process_effects(effects);
     }
 }

@@ -36,7 +36,12 @@
                     "label": "Begin Teleoperation",
                     "enabled": true,
                     "accent": true,
-                    "effects": []
+                    "effects": [
+                        {
+                            "kind": "transition",
+                            "stage": "teleoperation"
+                        }
+                    ]
                 }
             ],
             "label": "Autonomous",
