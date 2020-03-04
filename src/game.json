@@ -95,7 +95,147 @@
             "label": "TeleOp",
             "name": "teleop",
             "timers": [],
-            "actions": []
+            "actions": [
+                {
+                    "name": "high_goal",
+                    "label": "High Goal",
+                    "enabled": true,
+                    "accent": false,
+                    "effects": []
+                },
+                {
+                    "name": "low_goal",
+                    "label": "Low Goal",
+                    "enabled": true,
+                    "accent": false,
+                    "effects": []
+                },
+                {
+                    "name": "missed_goal",
+                    "label": "Missed Goal",
+                    "enabled": true,
+                    "accent": false,
+                    "effects": []
+                },
+                {
+                    "name": "control_wheel",
+                    "label": "Controled Wheel",
+                    "enabled": true,
+                    "accent": false,
+                    "effects": []
+                },
+                {
+                    "name": "start_climb",
+                    "label": "Started Climb",
+                    "enabled": true,
+                    "accent": false,
+                    "effects": [
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "start_climb", "high_goal", "low_goal", "missed_goal", "start_defense", "stop_defense", "control_wheel"
+                            ]
+                        },
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "fail_climb", "succeed_climb"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "fail_climb",
+                    "label": "Failed Climb",
+                    "enabled": false,
+                    "accent": false,
+                    "effects": [
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "start_climb", "high_goal", "low_goal", "missed_goal", "start_defense", "control_wheel"
+                            ]
+                        },
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "fail_climb", "succeed_climb", "selected_succeed_climb"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "succeed_climb",
+                    "label": "Succeeded Climb",
+                    "enabled": false,
+                    "accent": false,
+                    "effects": [
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "selected_succeed_climb"
+                            ]
+                        },
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "succeed_climb"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "selected_succeed_climb",
+                    "label": "Succeeded Climb",
+                    "enabled": false,
+                    "accent": true,
+                    "effects": [
+                        {
+                            "kind": "nocallbacks"
+                        }
+                    ]
+                },
+                {
+                    "name": "start_defense",
+                    "label": "Started Defense",
+                    "enabled": true,
+                    "accent": false,
+                    "effects": [
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "start_defense"
+                            ]
+                        },
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "stop_defense"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "stop_defense",
+                    "label": "Stopped Defense",
+                    "enabled": false,
+                    "accent": false,
+                    "effects": [
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "start_defense"
+                            ]
+                        },
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "stop_defense"
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

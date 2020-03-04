@@ -38,11 +38,15 @@ interface IDisable {
     actions: Action[];
 }
 
+interface INoCallbacks {
+    kind: 'nocallbacks';
+}
+
 interface IEnd {
     kind: 'end';
 }
 
-type Effect = ITransition | IEnable | IDisable | IEnd;
+type Effect = ITransition | IEnable | IDisable | IEnd | INoCallbacks;
 
 interface IStage {
     name: Stage;
@@ -242,6 +246,9 @@ export default class App {
     }
 
     private handle_action(action: IAction) {
+        if (action.effects.find((effect) => effect.kind == 'nocallbacks') != undefined) {
+            return;
+        }
         this.process_effects(action.effects);
     }
 
