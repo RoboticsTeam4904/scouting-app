@@ -31,8 +31,36 @@
                     "accent": false,
                     "effects": [
                         {
-                            "kind": "toggle",
-                            "action": "Crossed Baseline"
+                            "kind": "disable",
+                            "actions": [
+                                "crossed_baseline"
+                            ]
+                        },
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "undo_crossed_baseline"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "undo_crossed_baseline",
+                    "label": "Crossed Baseline",
+                    "enabled": false,
+                    "accent": true,
+                    "effects": [
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "crossed_baseline"
+                            ]
+                        },
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "undo_crossed_baseline"
+                            ]
                         }
                     ]
                 },

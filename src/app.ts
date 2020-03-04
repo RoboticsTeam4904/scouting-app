@@ -28,26 +28,21 @@ interface ITransition {
     stage: Stage;
 }
 
-interface IToggle {
-    kind: 'toggle';
-    action: Action;
+interface IEnable {
+    kind: 'enable';
+    actions: Action[];
 }
 
-interface IAdd {
-    kind: 'add';
-    actions: IAction[];
-}
-
-interface IRemove {
-    kind: 'remove';
-    actions: IAction[];
+interface IDisable {
+    kind: 'disable';
+    actions: Action[];
 }
 
 interface IEnd {
     kind: 'end';
 }
 
-type Effect = ITransition | IToggle | IAdd | IRemove | IEnd;
+type Effect = ITransition | IEnable | IDisable | IEnd;
 
 interface IStage {
     name: Stage;
@@ -81,23 +76,15 @@ class StageUI {
         actions.classList.add('actions');
         for (let action of stage.actions) {
             const item = document.createElement('div');
+            item.id = action.name;
             item.addEventListener('click', () => { cb(action); });
             item.classList.add('action');
             item.textContent = action.label;
             if (action.accent) {
                 item.classList.add('accent');
             }
-            for (const effect of action.effects) {
-                if (effect.kind === 'toggle') {
-                    item.addEventListener('click', () => {
-                        action.accent = !action.accent;
-                        if (action.accent) {
-                            item.classList.add('accent');
-                        } else {
-                            item.classList.remove('accent');
-                        }
-                    });
-                }
+            if (!action.enabled) {
+                item.classList.add('disabled');
             }
             actions.appendChild(item);
         }
@@ -263,6 +250,19 @@ export default class App {
             switch (effect.kind) {
                 case 'transition': {
                     this.transition(effect.stage);
+                    break
+                }
+                case 'disable': {
+                    for (const targetId of (effect as IDisable).actions) {
+                        document.querySelector(`#${targetId}`)?.classList.add('disabled');
+                    }
+                    break
+                }
+                case 'enable': {
+                    for (const targetId of (effect as IEnable).actions) {
+                        document.querySelector(`#${targetId}`)?.classList.remove('disabled');
+                    }
+                    break
                 }
             }
         }
