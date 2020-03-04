@@ -234,6 +234,17 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "name": "end_match",
+                    "label": "The Match is Complete",
+                    "enabled": true,
+                    "accent": true,
+                    "effects": [
+                        {
+                            "kind": "end"
+                        }
+                    ]
                 }
             ]
         }

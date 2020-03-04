@@ -190,7 +190,10 @@
         font-size: 1em;
         border-radius: 5px;
         cursor: pointer;
-        padding: 15px;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 20px;
+        padding-bottom: 20px;
         margin: 5px;
         justify-content: center;
         align-items: center;
@@ -289,6 +292,55 @@
         margin: 10px;
     }
 
+    .gameend {
+        display: none;
+        justify-content: center;
+        align-content: center;
+        flex-flow: row wrap;
+        padding: 20px;
+        margin: auto;
+        height: 100vh;
+    }
+    
+    .gameend.active {
+        display: flex;
+    }
+
+    .nextgame {
+        background: var(--fg);
+        color: var(--bg);
+        display: flex;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 15px;
+        margin: 5px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nextgame:hover {
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    }
+
+    .notesprompt {
+        font-size: 18px;
+    }
+
+    .notes {
+        border-radius: 5px;
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--fg);
+        height: 40px;
+        width: 90vw;
+        height: 40vw;
+        padding: 15px;
+        margin: 10px;
+    }
+
     input {
         outline: none;
         border: none;
@@ -350,6 +402,17 @@
         <div class="robot">
             <div class="team">Team 6</div><input placeholder="Team №" type="number" />
             <div class="start">Start</div>
+        </div>
+    </div>
+    <div class="gameend">
+        <div class="notesprompt">
+            Please add any additional notes about the match.
+        </div>
+        <div class="notes" contenteditable="true">
+
+        </div>
+        <div class="nextgame">
+            Go to the next match
         </div>
     </div>
     <script src="bundle.js"></script>

@@ -12,6 +12,7 @@ interface IAction {
 
 interface IEvent {
     timestamp: number;
+    stage: Stage;
     name: string;
 }
 
@@ -241,6 +242,7 @@ export default class App {
                     (timer) => {
                         this.handle_timer(timer);
                     });
+                break;
             }
         }
     }
@@ -270,6 +272,10 @@ export default class App {
                         document.querySelector(`#${targetId}`)?.classList.remove('disabled');
                     }
                     break
+                }
+                case 'end': {
+                    this.ui.remove();
+                    document.querySelector('.gameend')?.classList.add('active');
                 }
             }
         }
