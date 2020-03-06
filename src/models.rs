@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use super::schema::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Serialize)]
 pub struct Competition {
@@ -30,8 +30,8 @@ pub struct Game {
 pub struct NewGame {
     pub num: i32,
     pub red_team_nums: Vec<i32>, // These should always be length 3
-    pub blue_team_nums:  Vec<i32>,
-    pub performance_ids:  Vec<i32>, // this should be length 6
+    pub blue_team_nums: Vec<i32>,
+    pub performance_ids: Vec<i32>, // this should be length 6
 }
 
 #[derive(Queryable)]
