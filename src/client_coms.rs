@@ -1,5 +1,5 @@
 use super::models::NewEvent;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize)]
 pub enum Request {
@@ -11,4 +11,13 @@ pub enum Request {
     Games(i32),      // Ask for list of games in a certain competition
     Event(NewEvent), // Push an event to the db, responds with the event's id
     UndoEvent(i32), // Remove an event from the db based on its id
+}
+
+pub type Response = Result<String, ResponseError>;
+
+#[derive(Serialize)]
+pub enum ResponseError {
+    DataBase(String), // A database query or execution failed
+    Unauthorized, // User is not authorized to complete some option
+    InvalidSyntax, // Could not parse request
 }
