@@ -86,10 +86,28 @@ fn main() {
                                 .expect("Could not add event to db");
                             let parent_performance =
                                 performances.filter(perf::id.eq(new_event.performance_id));
-                            let parent_events: Vec<i32> = parent_performance
+                            let mut parent_events: Vec<i32> = parent_performance
                                 .select(perf::event_ids)
                                 .first(&db)
                                 .unwrap();
+                            parent_events.push(new_event.id);
+                            diesel::update(parent_performance)
+                                .set(perf::event_ids.eq(parent_events))
+                                .execute(&db)
+                                .unwrap();
+                            out.send(new_event.id.to_string())?
+                        }
+                        Request::UndoEvent(event_id) => {
+                            use schema::events::dsl::{self as ev, *};
+                            use schema::performances::dsl::{self as perf, *};
+                            let removed_event: Event = diesel::delete(events.filter(ev::id.eq(event_id))).get_result(&db).unwrap();
+                            let parent_performance =
+                                performances.filter(perf::id.eq(removed_event.performance_id));
+                            let mut parent_events: Vec<i32> = parent_performance
+                                .select(perf::event_ids)
+                                .first(&db)
+                                .unwrap();
+                            parent_events.remove(parent_events.binary_search(&event_id).unwrap());
                             diesel::update(parent_performance)
                                 .set(perf::event_ids.eq(parent_events))
                                 .execute(&db)

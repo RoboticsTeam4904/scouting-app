@@ -9,5 +9,6 @@ pub enum Request {
     AssignTeam { scouter: String, team: usize }, // Assigns a scouter the given team
     AllAssignedTeams, // Ask for which teams are assigned to which scouters
     Games(i32),      // Ask for list of games in a certain competition
-    Event(NewEvent), // Push an event to the db
+    Event(NewEvent), // Push an event to the db, responds with the event's id
+    UndoEvent(i32), // Remove an event from the db based on its id
 }
