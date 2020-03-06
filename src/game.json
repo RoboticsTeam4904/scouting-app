@@ -119,7 +119,7 @@
                 },
                 {
                     "name": "control_wheel",
-                    "label": "Controled Wheel",
+                    "label": "Controlled Wheel",
                     "enabled": true,
                     "accent": false,
                     "effects": []
@@ -139,7 +139,7 @@
                         {
                             "kind": "enable",
                             "actions": [
-                                "fail_climb", "succeed_climb"
+                                "fail_climb", "succeed_climb", "buddy_climb"
                             ]
                         }
                     ]
@@ -159,7 +159,7 @@
                         {
                             "kind": "disable",
                             "actions": [
-                                "fail_climb", "succeed_climb", "selected_succeed_climb"
+                                "fail_climb", "succeed_climb", "deselected_succeed_climb", "buddy_climb", "deselected_buddy_climb"
                             ]
                         }
                     ]
@@ -173,7 +173,7 @@
                         {
                             "kind": "enable",
                             "actions": [
-                                "selected_succeed_climb"
+                                "deselected_succeed_climb"
                             ]
                         },
                         {
@@ -185,13 +185,53 @@
                     ]
                 },
                 {
-                    "name": "selected_succeed_climb",
+                    "name": "deselected_succeed_climb",
                     "label": "Succeeded Climb",
                     "enabled": false,
                     "accent": true,
                     "effects": [
                         {
                             "kind": "nocallbacks"
+                        }
+                    ]
+                },
+                {
+                    "name": "buddy_climb",
+                    "label": "Buddy Climbed",
+                    "enabled": false,
+                    "accent": false,
+                    "effects": [
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "buddy_climb"
+                            ]
+                        },
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "deselected_buddy_climb"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "deselected_buddy_climb",
+                    "label": "Buddy Climbed",
+                    "enabled": false,
+                    "accent": true,
+                    "effects": [
+                        {
+                            "kind": "enable",
+                            "actions": [
+                                "buddy_climb"
+                            ]
+                        },
+                        {
+                            "kind": "disable",
+                            "actions": [
+                                "deselected_buddy_climb"
+                            ]
                         }
                     ]
                 },
