@@ -3,10 +3,12 @@ extern crate diesel;
 
 mod models;
 mod schema;
+mod client_coms;
 
+use models::*;
+use client_coms::*;
 use diesel::{pg::PgConnection, prelude::*};
 use ring::digest::{digest, SHA256};
-use serde::{Deserialize, Serialize};
 use ws::{listen, Message::Text};
 
 static GAME: &'static str = include_str!("game.json");
@@ -14,20 +16,46 @@ const POSTGRES_CON: &'static str =
     "host=localhost port=5432 dbname=scoutingdb user=postgres password=postgres";
 
 fn main() {
-    let connection = PgConnection::establish(POSTGRES_CON).unwrap();
-
     let hash = digest(&SHA256, GAME.as_bytes());
 
     listen("0.0.0.0:8000", |out| {
         let _ = out.send(hash.as_ref());
+        let db = PgConnection::establish(POSTGRES_CON).unwrap();
 
         move |msg| {
             match msg {
-                Text(data) => match data.as_str() {
-                    "g" => {
-                        out.send(GAME)?;
+                Text(data) => match serde_json::from_str::<Request>(data.as_str()) {
+                    Ok(request) => match request {
+                        Request::GameSchema => {
+                            out.send(GAME)?;
+                        },
+                        Request::Competitions => {
+                            use schema::competitions::dsl::*;
+                            let comps: Vec<Competition> = competitions.load(&db).expect("Could not retrieve competitions from db");
+                            out.send(serde_json::to_string(&comps).unwrap())?;
+                        },
+                        Request::Games(comp_id) => {
+                            use schema::competitions::dsl::*;
+                            let comp: Competition = competitions.filter(id.eq(comp_id)).first(&db).unwrap();
+                            out.send(serde_json::to_string(&comp).unwrap())?;
+                        },
+                        Request::Event(event) => {
+                            use schema::events::dsl::*;
+                            use schema::performances::dsl::{self as perf, *};
+                            let new_event: Event = diesel::insert_into(events)
+                                .values(event)
+                                .get_result(&db)
+                                .expect("Could not add event to db");
+                            let parent_performance = performances.filter(perf::id.eq(new_event.performance_id));
+                            let parent_events: Vec<i32> = parent_performance.select(perf::event_ids).first(&db).unwrap();
+                            diesel::update(parent_performance)
+                                .set(perf::event_ids.eq(parent_events))
+                                .execute(&db)
+                                .unwrap();
+                        }
+
                     }
-                    _ => {}
+                    Err(_) => (),
                 },
                 _ => {}
             };
