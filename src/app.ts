@@ -70,7 +70,12 @@ class StageUI {
 
     constructor(stage: IStage, cb: (a0: IAction) => void, tcb: (effects: Effect[]) => void) {
         this.time = document.querySelector('.timer')!;
-        this.start = performance.now();
+        if (localStorage.getItem('start') && localStorage.getItem('active')! === stage.name) {
+            this.start = parseInt(localStorage.getItem('start')!, 10);
+        } else {
+            this.start = Date.now();
+            localStorage.setItem('start', Math.round(this.start).toString());
+        }
         this.time.classList.add('active');
         this.intervals = [];
         const el = document.createElement('div');
@@ -109,25 +114,35 @@ class StageUI {
             leastTimer = sortedTimers[this.timerIdx][0];
         }
         if (leastTimer < 60000) {
-            this.intervals.push(setInterval(() => {
-                const time = performance.now() - this.start;
-                const millis = Math.round((time % 1000) / 10).toString().padStart(2, '0');
-                const secs = Math.floor(time / 1000).toString().padStart(2, '0');
+            const updateTime = (ti: number) => {
+                const millis = Math.round((ti % 1000) / 10).toString().padStart(2, '0');
+                const secs = Math.floor(ti / 1000).toString().padStart(2, '0');
                 this.time.textContent = `${secs}:${millis}`;
-                if (sortedTimers[this.timerIdx] && time >= sortedTimers[this.timerIdx][0]) {
+            };
+            this.intervals.push(setInterval(() => {
+                const t = Date.now() - this.start;
+                updateTime(t);
+                if (sortedTimers[this.timerIdx] && t >= sortedTimers[this.timerIdx][0]) {
                     tcb(sortedTimers[this.timerIdx][1]); this.timerIdx += 1;
                 }
             }, 10));
+            const time = Date.now() - this.start;
+            updateTime(time);
         } else {
-            this.intervals.push(setInterval(() => {
-                const time = Math.floor((performance.now() - this.start) / 1000);
-                const secs = Math.round(time % 60).toString().padStart(2, '0');
-                const mins = Math.floor(time / 60).toString().padStart(2, '0');
+            const updateTime = (ti: number) => {
+                const secs = Math.round(ti % 60).toString().padStart(2, '0');
+                const mins = Math.floor(ti / 60).toString().padStart(2, '0');
                 this.time.textContent = `${mins}:${secs}`;
-                if (sortedTimers[this.timerIdx] && time >= sortedTimers[this.timerIdx][0]) {
+            };
+            this.intervals.push(setInterval(() => {
+                const t = Math.floor((Date.now() - this.start) / 1000);
+                updateTime(t);
+                if (sortedTimers[this.timerIdx] && t >= sortedTimers[this.timerIdx][0]) {
                     tcb(sortedTimers[this.timerIdx][1]); this.timerIdx += 1;
                 }
             }, 1000));
+            const time = Math.floor((Date.now() - this.start) / 1000);
+            updateTime(time);
         }
     }
 
@@ -191,6 +206,7 @@ export default class App {
                     this.read_schema();
                 }
             } else if (this.initialized === AppState.ReadingSchema) {
+                localStorage.removeItem('active');
                 localStorage.setItem('schema', message.data);
                 localStorage.setItem('schema_hash',
                     btoa(String.fromCharCode.apply(null, new Uint8Array(this.tempHash))));
@@ -204,13 +220,17 @@ export default class App {
         const data = localStorage.getItem('schema')!;
         const schema: ISchema = JSON.parse(data);
         this.schema = schema;
-        const gs = document.querySelector('.gamestart')!;
-        gs.classList.add('active');
         const splash = document.querySelector('.splash');
         splash?.classList.add('loaded');
         setTimeout(() => {
             splash?.remove();
         }, 1000);
+        if (localStorage.getItem('active')) {
+            this.begin_game();
+            return;
+        }
+        const gs = document.querySelector('.gamestart')!;
+        gs.classList.add('active');
         document.querySelectorAll('.start').forEach((item) => {
             item.addEventListener('click', () => { gs.classList.remove('active'); this.begin_game(); });
         });
@@ -221,8 +241,15 @@ export default class App {
             events: [],
             start_time: Date.now(),
         };
+        let initial = this.schema.initial;
+        const storedInitial = localStorage.getItem('active');
+        if (storedInitial) {
+            initial = storedInitial!;
+        } else {
+            localStorage.setItem('active', initial);
+        }
         for (const stage of this.schema.stages) {
-            if (stage.name === this.schema.initial) {
+            if (stage.name === initial) {
                 this.ui = new StageUI(stage,
                     (action) => { this.handle_action(action); },
                     (timer) => {
@@ -258,6 +285,7 @@ export default class App {
             switch (effect.kind) {
                 case 'transition': {
                     this.transition(effect.stage);
+                    localStorage.setItem('active', effect.stage);
                     break;
                 }
                 case 'disable': {
@@ -274,6 +302,8 @@ export default class App {
                 }
                 case 'end': {
                     this.ui.remove();
+                    localStorage.removeItem('active');
+                    localStorage.removeItem('start');
                     document.querySelector('.gameend')?.classList.add('active');
                 }
             }
