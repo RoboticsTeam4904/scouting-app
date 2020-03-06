@@ -79,7 +79,7 @@ class StageUI {
         el.innerHTML = `<div class="title">${stage.label}</div>`;
         const actions = document.createElement('div');
         actions.classList.add('actions');
-        for (let action of stage.actions) {
+        for (const action of stage.actions) {
             const item = document.createElement('div');
             item.id = action.name;
             item.addEventListener('click', () => { cb(action); });
@@ -214,7 +214,6 @@ export default class App {
         document.querySelectorAll('.start').forEach((item) => {
             item.addEventListener('click', () => { gs.classList.remove('active'); this.begin_game(); });
         });
-        // this.begin_game();
     }
 
     private begin_game() {
@@ -248,7 +247,7 @@ export default class App {
     }
 
     private handle_action(action: IAction) {
-        if (action.effects.find((effect) => effect.kind == 'nocallbacks') != undefined) {
+        if (action.effects.find((effect) => effect.kind === 'nocallbacks') !== undefined) {
             return;
         }
         this.process_effects(action.effects);
@@ -259,19 +258,19 @@ export default class App {
             switch (effect.kind) {
                 case 'transition': {
                     this.transition(effect.stage);
-                    break
+                    break;
                 }
                 case 'disable': {
                     for (const targetId of (effect as IDisable).actions) {
                         document.querySelector(`#${targetId}`)?.classList.add('disabled');
                     }
-                    break
+                    break;
                 }
                 case 'enable': {
                     for (const targetId of (effect as IEnable).actions) {
                         document.querySelector(`#${targetId}`)?.classList.remove('disabled');
                     }
-                    break
+                    break;
                 }
                 case 'end': {
                     this.ui.remove();
