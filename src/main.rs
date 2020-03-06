@@ -35,9 +35,9 @@ fn main() {
                             out.send(serde_json::to_string(&comps).unwrap())?;
                         },
                         Request::Games(comp_id) => {
-                            use schema::competitions::dsl::*;
-                            let comp: Competition = competitions.filter(id.eq(comp_id)).first(&db).unwrap();
-                            out.send(serde_json::to_string(&comp).unwrap())?;
+                            use schema::games::dsl::*;
+                            let comp_games = games.filter(competition_id.eq(comp_id)).load::<Game>(&db).unwrap();
+                            out.send(serde_json::to_string(&comp_games).unwrap())?;
                         },
                         Request::Event(event) => {
                             use schema::events::dsl::*;

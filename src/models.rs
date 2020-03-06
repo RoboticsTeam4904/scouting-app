@@ -15,13 +15,14 @@ pub struct NewCompetition {
     pub game_ids: Vec<i32>,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct Game {
     pub id: i32,
+    pub competition_id: i32,
     pub num: i32,
-    pub red_team_nums: [i32; 3],
-    pub blue_team_nums: [i32; 3],
-    pub performance_ids: [i32; 6],
+    pub red_team_nums: Vec<i32>, // length 3
+    pub blue_team_nums: Vec<i32>,
+    pub performance_ids: Vec<i32>, // length 6
 }
 
 #[derive(Insertable)]

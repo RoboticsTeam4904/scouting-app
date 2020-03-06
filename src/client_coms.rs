@@ -6,5 +6,5 @@ pub enum Request {
     GameSchema, // Ask for game schema
     Competitions, // Ask for competition list
     Games(i32), // Ask for list of games in a certain competition
-    Event(NewEvent),
+    Event(NewEvent), // Push an event to the db
 }

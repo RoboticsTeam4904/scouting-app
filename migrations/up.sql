@@ -6,7 +6,8 @@ CREATE TABLE competitions (
 
 CREATE TABLE games (
     id Serial PRIMARY KEY,
-    num Serial NOT NULL,
+    competition_id Int4 NOT NULL,
+    num Int4 NOT NULL,
     red_team_nums Int4[3] NOT NULL,
     blue_team_nums Int4[3] NOT NULL,
     performance_ids Int4[6] NOT NULL

@@ -9,6 +9,7 @@ table! {
 table! {
     games (id) {
         id -> Int4,
+        competition_id -> Int4,
         num -> Int4,
         red_team_nums -> Array<Int4>, // these should be length 3, idk
         blue_team_nums -> Array<Int4>,
