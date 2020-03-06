@@ -207,6 +207,7 @@ export default class App {
                 }
             } else if (this.initialized === AppState.ReadingSchema) {
                 localStorage.removeItem('active');
+                localStorage.removeItem('start');
                 localStorage.setItem('schema', message.data);
                 localStorage.setItem('schema_hash',
                     btoa(String.fromCharCode.apply(null, new Uint8Array(this.tempHash))));
