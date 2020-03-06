@@ -197,7 +197,7 @@ export default class App {
         };
         server.onmessage = (message) => {
             if (this.initialized === AppState.Uninitialized) {
-                if (message.data !== localStorage.getItem('schema_hash')) {
+                if (btoa(String.fromCharCode.apply(null, new Uint8Array(message.data))) !== localStorage.getItem('schema_hash')) {
                     this.initialized = AppState.ReadingSchema;
                     this.tempHash = message.data;
                     server.send('"GameSchema"');
