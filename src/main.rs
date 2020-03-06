@@ -9,10 +9,15 @@ use client_coms::*;
 use diesel::{pg::PgConnection, prelude::*};
 use models::*;
 use ring::digest::{digest, SHA256};
+use std::sync::{Arc, Mutex};
 use ws::{listen, Message::Text};
 
 static GAME: &'static str = include_str!("game.json");
 const POSTGRES_CON: &'static str = "host=localhost port=5432 dbname=scoutingdb";
+
+struct State {
+    assigned_teams: [Option<String>; 6]
+}
 
 fn main() {
     let hash = digest(&SHA256, GAME.as_bytes());
@@ -20,8 +25,13 @@ fn main() {
     listen("0.0.0.0:8000", |out| {
         let _ = out.send(hash.as_ref());
         let db = PgConnection::establish(POSTGRES_CON).unwrap();
+        let client_user = "TODO, WAITING FOR OATH FROM IZZY ._.".to_owned();
+        let state = Arc::new(Mutex::new(State {
+            assigned_teams: <[Option<String>; 6]>::default()
+        }));
 
         move |msg| {
+            let state = state.clone();
             match msg {
                 Text(data) => match serde_json::from_str::<Request>(data.as_str()) {
                     Ok(request) => match request {
@@ -34,6 +44,30 @@ fn main() {
                                 .load(&db)
                                 .expect("Could not retrieve competitions from db");
                             out.send(serde_json::to_string(&comps).unwrap())?;
+                        }
+                        Request::AssignedTeam => {
+                            let state = state.lock().unwrap();
+                            let mut assigned_team = None;
+                            for (team, assignee) in state.assigned_teams.iter().enumerate() {
+                                if assignee == &Some(client_user.clone()) {
+                                    out.send(team.to_string())?;
+                                    return Ok(());
+                                }
+                                if assignee.is_none() {
+                                    assigned_team = Some(team);
+                                }
+                            }
+                            out.send(serde_json::to_string(&assigned_team).unwrap())?;
+                        }
+                        Request::AssignTeam { scouter, team} => {
+                            if team < 6 {
+                                let mut state = state.lock().unwrap();
+                                state.assigned_teams[team] = Some(scouter);
+                            }
+                        }
+                        Request::AllAssignedTeams => {
+                            let state = state.lock().unwrap();
+                            out.send(serde_json::to_string(&state.assigned_teams).unwrap())?
                         }
                         Request::Games(comp_id) => {
                             use schema::games::dsl::*;
