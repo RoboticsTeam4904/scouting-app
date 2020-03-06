@@ -66,7 +66,7 @@
                 },
                 {
                     "name": "begin_teleop",
-                    "label": "Begin TeleOp",
+                    "label": "Begin Teleoperation",
                     "enabled": true,
                     "accent": true,
                     "effects": [
@@ -92,7 +92,7 @@
             ]
         },
         {
-            "label": "TeleOp",
+            "label": "Teleoperation",
             "name": "teleop",
             "timers": [],
             "actions": [
@@ -133,13 +133,21 @@
                         {
                             "kind": "disable",
                             "actions": [
-                                "start_climb", "high_goal", "low_goal", "missed_goal", "start_defense", "stop_defense", "control_wheel"
+                                "start_climb",
+                                "high_goal",
+                                "low_goal",
+                                "missed_goal",
+                                "start_defense",
+                                "stop_defense",
+                                "control_wheel"
                             ]
                         },
                         {
                             "kind": "enable",
                             "actions": [
-                                "fail_climb", "succeed_climb", "buddy_climb"
+                                "fail_climb",
+                                "succeed_climb",
+                                "buddy_climb"
                             ]
                         }
                     ]
@@ -153,13 +161,22 @@
                         {
                             "kind": "enable",
                             "actions": [
-                                "start_climb", "high_goal", "low_goal", "missed_goal", "start_defense", "control_wheel"
+                                "start_climb",
+                                "high_goal",
+                                "low_goal",
+                                "missed_goal",
+                                "start_defense",
+                                "control_wheel"
                             ]
                         },
                         {
                             "kind": "disable",
                             "actions": [
-                                "fail_climb", "succeed_climb", "deselected_succeed_climb", "buddy_climb", "deselected_buddy_climb"
+                                "fail_climb",
+                                "succeed_climb",
+                                "deselected_succeed_climb",
+                                "buddy_climb",
+                                "deselected_buddy_climb"
                             ]
                         }
                     ]
@@ -277,7 +294,7 @@
                 },
                 {
                     "name": "end_match",
-                    "label": "The Match is Complete",
+                    "label": "End Match",
                     "enabled": true,
                     "accent": true,
                     "effects": [

@@ -12,8 +12,7 @@ use ring::digest::{digest, SHA256};
 use ws::{listen, Message::Text};
 
 static GAME: &'static str = include_str!("game.json");
-const POSTGRES_CON: &'static str =
-    "host=localhost port=5432 dbname=scoutingdb user=postgres password=postgres";
+const POSTGRES_CON: &'static str = "host=localhost port=5432 dbname=scoutingdb";
 
 fn main() {
     let hash = digest(&SHA256, GAME.as_bytes());

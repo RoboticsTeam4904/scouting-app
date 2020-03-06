@@ -297,26 +297,29 @@
         justify-content: center;
         align-content: center;
         flex-flow: row wrap;
-        padding: 20px;
+        padding: 30px;
         margin: auto;
         height: 100vh;
     }
-    
+
     .gameend.active {
         display: flex;
     }
 
     .nextgame {
-        background: var(--fg);
-        color: var(--bg);
+        background: var(--bg);
+        color: var(--fg);
         display: flex;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
         font-size: 1em;
         border-radius: 5px;
         cursor: pointer;
+        position: absolute;
         padding: 15px;
-        margin: 5px;
+        bottom: 0;
+        right: 0;
+        margin: 15px;
         justify-content: center;
         align-items: center;
     }
@@ -325,20 +328,53 @@
         box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
     }
 
-    .notesprompt {
-        font-size: 18px;
+    .nextgame:active {
+        opacity: 0.8;
+    }
+
+    .gc .prompt {
+        content: "Additional information";
+        display: block;
+        color: var(--fg);
+        margin-bottom: 10px;
+        font-weight: bold;
+        font-size: 2em;
+    }
+
+    .gc {
+        width: 100%;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-flow: column;
+        max-height: 400px;
+        position: relative;
+        height: 100%;
+        outline: none;
+    }
+
+    @media (orientation: portrait) {
+        .gc {
+            max-height: none;
+        }
     }
 
     .notes {
         border-radius: 5px;
-        background: var(--bg);
-        color: var(--fg);
-        border: 1px solid var(--fg);
-        height: 40px;
-        width: 90vw;
-        height: 40vw;
+        background: var(--fg);
+        height: 100%;
+        outline: none;
         padding: 15px;
-        margin: 10px;
+        font-size: 1em;
+        width: 100%;
+        color: var(--bg);
+    }
+
+    textarea {
+        resize: none;
     }
 
     input {
@@ -385,14 +421,12 @@
         </div>
     </div>
     <div class="gameend">
-        <div class="notesprompt">
-            Please add any additional notes about the match.
-        </div>
-        <div class="notes" contenteditable="true">
-
-        </div>
-        <div class="nextgame">
-            Go to the next match
+        <div class="gc">
+            <div class="prompt">Additional information</div>
+            <textarea class="notes"></textarea>
+            <div contenteditable="false" class="nextgame">
+                Next match
+            </div>
         </div>
     </div>
     <script src="bundle.js"></script>
