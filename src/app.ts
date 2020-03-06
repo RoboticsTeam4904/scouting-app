@@ -185,7 +185,7 @@ export default class App {
                 if (message.data !== localStorage.getItem('schema_hash')) {
                     this.initialized = AppState.ReadingSchema;
                     this.tempHash = message.data;
-                    server.send('GameSchema');
+                    server.send('"GameSchema"');
                 } else {
                     this.initialized = AppState.Ready;
                     this.read_schema();
