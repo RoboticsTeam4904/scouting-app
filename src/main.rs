@@ -13,7 +13,7 @@ use std::sync::{Arc, Mutex};
 use ws::{listen, Message::Text};
 
 static GAME: &'static str = include_str!("game.json");
-const POSTGRES_CON: &'static str = "host=localhost port=5432 dbname=scoutingdb";
+const POSTGRES_CON: &'static str = "host=localhost port=5432 user=postgres password=postgres dbname=scoutingdb";
 
 struct State {
     assigned_teams: [Option<String>; 6],

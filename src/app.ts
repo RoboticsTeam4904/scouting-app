@@ -17,8 +17,12 @@ interface IEvent {
 }
 
 interface IGame {
-    start_time: number;
-    events: IEvent[];
+    id: number;
+    competition_id: number;
+    num: number;
+    red_team_nums: number[];
+    blue_team_nums: number[];
+    performance_ids: number[];
 }
 
 type Action = string;
@@ -59,6 +63,12 @@ interface IStage {
 interface ISchema {
     stages: IStage[];
     initial: string;
+}
+
+interface ICompetition {
+    id: number,
+    name: string,
+    game_ids: number[],
 }
 
 class StageUI {
@@ -159,6 +169,8 @@ class StageUI {
 enum AppState {
     Uninitialized,
     ReadingSchema,
+    ReadingCompetitions,
+    ReadingGames,
     Ready,
     Failed,
 }
@@ -167,25 +179,20 @@ export default class App {
     private initialized: AppState;
     private tempHash: ArrayBuffer;
     private schema: ISchema;
+    private server: WebSocket;
+    private competitions: ICompetition[];
+    private games: IGame[];
+    private performance_id: number;
     private ui: StageUI;
-    private game: IGame;
-    private games: string[];
 
     constructor() {
-        const games = localStorage.getItem('games');
-        if (games) {
-            this.games = JSON.parse(games);
-        } else {
-            localStorage.setItem('games', JSON.stringify([]));
-            this.games = [];
-        }
-        const server = new WebSocket(serverURI);
-        server.binaryType = 'arraybuffer';
+        this.server = new WebSocket(serverURI);
+        this.server.binaryType = 'arraybuffer';
         this.initialized = AppState.Uninitialized;
-        server.onerror = () => {
+        this.server.onerror = () => {
             if (this.initialized !== AppState.Ready) {
-                const data = localStorage.getItem('schema');
-                if (!data) {
+                const schemaData = localStorage.getItem('schema');
+                if (!schemaData) {
                     const el = document.createElement('div');
                     document.body.appendChild(el);
                     el.outerHTML = `<div style="display: flex; padding: 30px; width: 100vw; height: 100vh; justify-content: center; align-items: center; font-size: 3em; font-weight: bold; flex-flow: column; line-height: 1;"><div>Connection failed<div style="font-size: 0.5em; font-weight: normal; opacity: 0.7; margin-top: 10px;">No schema available</div></div></div>`;
@@ -195,24 +202,44 @@ export default class App {
                 }
             }
         };
-        server.onmessage = (message) => {
-            if (this.initialized === AppState.Uninitialized) {
-                if (btoa(String.fromCharCode.apply(null, new Uint8Array(message.data))) !== localStorage.getItem('schema_hash')) {
-                    this.initialized = AppState.ReadingSchema;
-                    this.tempHash = message.data;
-                    server.send('"GameSchema"');
-                } else {
-                    this.initialized = AppState.Ready;
-                    this.read_schema();
+        this.server.onmessage = (message) => {
+            switch (this.initialized) {
+                case AppState.Uninitialized: {
+                    if (btoa(String.fromCharCode.apply(null, new Uint8Array(message.data))) !== localStorage.getItem('schema_hash')) {
+                        this.initialized = AppState.ReadingSchema;
+                        this.tempHash = message.data;
+                        this.server.send('"GameSchema"');
+                    } else {
+                        this.initialized = AppState.ReadingCompetitions;
+                        this.read_schema();
+                    }
+                    break;
                 }
-            } else if (this.initialized === AppState.ReadingSchema) {
-                localStorage.removeItem('active');
-                localStorage.removeItem('start');
-                localStorage.setItem('schema', message.data);
-                localStorage.setItem('schema_hash',
-                    btoa(String.fromCharCode.apply(null, new Uint8Array(this.tempHash))));
-                this.initialized = AppState.Ready;
-                this.read_schema();
+                case AppState.ReadingSchema: {
+                    const newSchema = JSON.parse(message.data)["Ok"];
+                    localStorage.removeItem('active');
+                    localStorage.removeItem('start');
+                    localStorage.setItem('schema', newSchema);
+                    localStorage.setItem('schema_hash',
+                        btoa(String.fromCharCode.apply(null, new Uint8Array(this.tempHash))));
+                    this.initialized = AppState.ReadingCompetitions;
+                    this.read_schema();
+                    this.server.send('"Competitions"')
+                    break;
+                }
+                case AppState.ReadingCompetitions: {
+                    const newCompetitions = JSON.parse(message.data)["Ok"];
+                    localStorage.setItem('competitions', newCompetitions);
+                    this.read_competitions();
+                    break;
+                }
+                case AppState.ReadingGames: {
+                    const games = JSON.parse(message.data)["Ok"];
+                    localStorage.setItem('games', games);
+                    this.initialized = AppState.Ready;
+                    this.read_games();
+                    break;
+                }
             }
         };
     }
@@ -230,6 +257,37 @@ export default class App {
             this.begin_game();
             return;
         }
+    }
+
+    private read_competitions() {
+        const data = localStorage.getItem('competitions')!;
+        this.competitions = JSON.parse(data);
+        this.competition_select();
+    }
+
+    private read_games() {
+        const data = localStorage.getItem('games')!;
+        this.games = JSON.parse(data);
+        this.robot_select();
+    }
+
+    private competition_select() {
+        const sc = document.querySelector('.selectcompetition')!;
+        sc.classList.add('active');
+        for (const competition of this.competitions) {
+            const selector = document.createElement('button');
+            selector.className = '.competitionselect';
+            selector.textContent = competition.name;
+            selector.addEventListener('click', () => {
+                sc.classList.remove('active');
+                this.server.send(`{ "Games": ${competition.id} }`);
+            });
+            sc.appendChild(sc);
+        }
+    }
+    
+    private robot_select() {
+        // TODO: Add option to select which game it is
         const gs = document.querySelector('.gamestart')!;
         gs.classList.add('active');
         document.querySelectorAll('.start').forEach((item) => {
@@ -238,10 +296,6 @@ export default class App {
     }
 
     private begin_game() {
-        this.game = {
-            events: [],
-            start_time: Date.now(),
-        };
         let initial = this.schema.initial;
         const storedInitial = localStorage.getItem('active');
         if (storedInitial) {
