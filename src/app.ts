@@ -182,6 +182,7 @@ export default class App {
     private server: WebSocket;
     private competitions: ICompetition[];
     private games: IGame[];
+    private selectedGame: IGame;
     private performance_id: number;
     private ui: StageUI;
 
@@ -211,6 +212,7 @@ export default class App {
                         this.server.send('"GameSchema"');
                     } else {
                         this.initialized = AppState.ReadingCompetitions;
+                        this.server.send('"Competitions"');
                         this.read_schema();
                     }
                     break;
@@ -225,15 +227,19 @@ export default class App {
                     this.initialized = AppState.ReadingCompetitions;
                     this.read_schema();
                     this.server.send('"Competitions"')
+                    console.log("read schema");
                     break;
                 }
                 case AppState.ReadingCompetitions: {
                     const newCompetitions = JSON.parse(message.data)["Ok"];
+                    console.log(newCompetitions);
                     localStorage.setItem('competitions', newCompetitions);
+                    this.initialized = AppState.ReadingGames;
                     this.read_competitions();
                     break;
                 }
                 case AppState.ReadingGames: {
+                    console.log("heybro");
                     const games = JSON.parse(message.data)["Ok"];
                     localStorage.setItem('games', games);
                     this.initialized = AppState.Ready;
@@ -249,9 +255,9 @@ export default class App {
         const schema: ISchema = JSON.parse(data);
         this.schema = schema;
         const splash = document.querySelector('.splash');
-        splash?.classList.add('loaded');
+        splash ?.classList.add('loaded');
         setTimeout(() => {
-            splash?.remove();
+            splash ?.remove();
         }, 1000);
         if (localStorage.getItem('active')) {
             this.begin_game();
@@ -262,13 +268,14 @@ export default class App {
     private read_competitions() {
         const data = localStorage.getItem('competitions')!;
         this.competitions = JSON.parse(data);
+        console.log(this.competitions);
         this.competition_select();
     }
 
     private read_games() {
         const data = localStorage.getItem('games')!;
         this.games = JSON.parse(data);
-        this.robot_select();
+        this.game_select();
     }
 
     private competition_select() {
@@ -282,16 +289,73 @@ export default class App {
                 sc.classList.remove('active');
                 this.server.send(`{ "Games": ${competition.id} }`);
             });
-            sc.appendChild(sc);
+            sc.appendChild(selector);
         }
     }
-    
+
+    private game_select() {
+        const gs = document.querySelector('.selectgame')!;
+        const gss = gs.querySelector('select')!;
+        const nextstate = gs.querySelector('button')!;
+        gs.classList.add('active');
+        for (const game of this.games) {
+            const selector = document.createElement('option');
+            selector.text = game.num.toString();
+            selector.className = '.gameselectoption';
+            nextstate.addEventListener('click', () => {
+                if (gss.value !== game.num.toString()) {
+                    return;
+                }
+                gs.classList.remove('active');
+                this.selectedGame = game;
+                this.initialized = AppState.Ready
+                this.robot_select();
+            });
+            gss.appendChild(selector);
+        }
+    }
+
     private robot_select() {
         // TODO: Add option to select which game it is
         const gs = document.querySelector('.gamestart')!;
         gs.classList.add('active');
-        document.querySelectorAll('.start').forEach((item) => {
-            item.addEventListener('click', () => { gs.classList.remove('active'); this.begin_game(); });
+        let i = 0;
+        for (const redteam of this.selectedGame.red_team_nums) {
+            ++i;
+            const teamSelector = document.createElement('div');
+            teamSelector.className = 'robot';
+            const team = document.createElement('div');
+            team.className = 'team';
+            team.textContent = `Red ${i}`;
+            const input = document.createElement('div');
+            input.className = 'input';
+            const start = document.createElement('div');
+            start.className = 'start';
+            teamSelector.appendChild(team);
+            teamSelector.appendChild(input);
+            teamSelector.appendChild(start);
+        }
+        i = 0
+        for (const blueteam of this.selectedGame.blue_team_nums) {
+            ++i;
+            const teamSelector = document.createElement('div');
+            teamSelector.className = 'robot';
+            const team = document.createElement('div');
+            team.className = 'team';
+            team.textContent = `Blue ${i}`;
+            const input = document.createElement('div');
+            input.className = 'input';
+            const start = document.createElement('div');
+            start.className = 'start';
+            teamSelector.appendChild(team);
+            teamSelector.appendChild(input);
+            teamSelector.appendChild(start);
+        }
+        document.querySelectorAll('.start').forEach((e) => {
+            e.addEventListener('click', () => {
+                gs.classList.remove('active');
+                this.begin_game();
+            })
         });
     }
 
@@ -345,13 +409,13 @@ export default class App {
                 }
                 case 'disable': {
                     for (const targetId of (effect as IDisable).actions) {
-                        document.querySelector(`#${targetId}`)?.classList.add('disabled');
+                        document.querySelector(`#${targetId}`) ?.classList.add('disabled');
                     }
                     break;
                 }
                 case 'enable': {
                     for (const targetId of (effect as IEnable).actions) {
-                        document.querySelector(`#${targetId}`)?.classList.remove('disabled');
+                        document.querySelector(`#${targetId}`) ?.classList.remove('disabled');
                     }
                     break;
                 }
@@ -359,7 +423,7 @@ export default class App {
                     this.ui.remove();
                     localStorage.removeItem('active');
                     localStorage.removeItem('start');
-                    document.querySelector('.gameend')?.classList.add('active');
+                    document.querySelector('.gameend') ?.classList.add('active');
                 }
             }
         }

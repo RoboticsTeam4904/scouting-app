@@ -3,10 +3,15 @@ name = "scouting"
 version = "0.1.0"
 authors = ["Izzy Swart <zenerboson@gmail.com>"]
 edition = "2018"
+default-run = "main"
 
 [[bin]]
 path = "src/create_example_competition.rs"
 name = "create_example_competition"
+
+[[bin]]
+path = "src/main.rs"
+name = "main"
 
 [dependencies]
 ws = "0.9.1"

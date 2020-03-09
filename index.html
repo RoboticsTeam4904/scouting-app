@@ -246,6 +246,22 @@
         border: 1px solid var(--fg);
     }
 
+    .selectcompetition {
+        display: none;
+    }
+
+    .selectcompetition.active {
+        display: flex;
+    }
+
+    .selectgame {
+        display: none;
+    }
+
+    .selectgame.active {
+        display: flex;
+    }
+
     .gamestart {
         display: none;
         justify-content: center;
@@ -378,7 +394,7 @@
         resize: none;
     }
 
-    input {
+    .input {
         outline: none;
         border: none;
         font-size: 1.5em;
@@ -417,11 +433,20 @@
     </div>
     <div class="gamestart">
         <div class="robot">
-            <div class="team"></div><input placeholder="Team №" type="number" />
+            <div class="team"></div>
+            <div class="input"></div>
             <div class="start">Start</div>
         </div>
     </div>
     <div class="selectcompetition">
+    </div>
+    <div class="selectgame">
+        <select class="choosegame">
+
+        </select>
+        <button>
+            I choose you!
+        </button>
     </div>
     <div class="gameend">
         <div class="gc">
