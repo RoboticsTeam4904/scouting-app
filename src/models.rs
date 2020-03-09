@@ -29,6 +29,7 @@ pub struct Game {
 #[table_name = "games"]
 pub struct NewGame {
     pub num: i32,
+    pub competition_id: i32,
     pub red_team_nums: Vec<i32>, // These should always be length 3
     pub blue_team_nums: Vec<i32>,
     pub performance_ids: Vec<i32>, // this should be length 6
@@ -45,6 +46,7 @@ pub struct Performance {
 #[derive(Insertable)]
 #[table_name = "performances"]
 pub struct NewPerformance {
+    pub game_id: i32,
     pub team_num: i32,
 }
 
@@ -71,5 +73,5 @@ pub struct NewEvent {
 #[derive(Queryable, Insertable)]
 pub struct Team {
     pub num: i32,
-    pub performance_ids: Vec<Performance>,
+    pub performance_ids: Vec<i32>,
 }

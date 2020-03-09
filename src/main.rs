@@ -13,7 +13,8 @@ use std::sync::{Arc, Mutex};
 use ws::{listen, Message::Text};
 
 static GAME: &'static str = include_str!("game.json");
-const POSTGRES_CON: &'static str = "host=localhost port=5432 user=postgres password=postgres dbname=scoutingdb";
+const POSTGRES_CON: &'static str =
+    "host=localhost port=5432 user=postgres password=postgres dbname=scoutingdb";
 
 struct State {
     assigned_teams: [Option<String>; 6],
@@ -81,6 +82,9 @@ fn main() {
                             Request::Event(event) => {
                                 use schema::events::dsl::*;
                                 use schema::performances::dsl::{self as perf, *};
+                                if event.scouter_name != client_user.clone() {
+                                    return Err(ResponseError::Unauthorized);
+                                }
                                 let new_event: Event = diesel::insert_into(events)
                                     .values(event)
                                     .get_result(&db)
@@ -122,7 +126,7 @@ fn main() {
                         },
                         _ => Err(ResponseError::InvalidSyntax),
                     },
-                    _ => Err(ResponseError::InvalidSyntax)
+                    _ => Err(ResponseError::InvalidSyntax),
                 }
             })();
             out.send(serde_json::to_string(&response).unwrap())?;

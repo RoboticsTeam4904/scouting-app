@@ -30,6 +30,6 @@ CREATE TABLE events (
 );
 
 CREATE TABLE teams (
-    id Int4 PRIMARY KEY NOT NULL,
+    num Int4 PRIMARY KEY NOT NULL,
     performance_ids Int4[] NOT NULL
 );

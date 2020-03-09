@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["Izzy Swart <zenerboson@gmail.com>"]
 edition = "2018"
 
+[[bin]]
+path = "src/create_example_competition.rs"
+name = "create_example_competition"
+
 [dependencies]
 ws = "0.9.1"
 serde_json = "1.0.48"
